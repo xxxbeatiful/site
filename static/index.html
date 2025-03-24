@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teenova Clan Join</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(135deg, #121212 0%, #1a1a1a 100%);
+            color: #00ffea;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        .navbar {
+            display: flex;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 20px rgba(0, 255, 234, 0.2);
+        }
+        .navbar .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .navbar .logo img {
+            height: 50px;
+            width: auto;
+            filter: drop-shadow(0 0 10px #00ffea);
+            transition: transform 0.3s ease;
+        }
+        .navbar .logo img:hover {
+            transform: scale(1.1);
+        }
+        .navbar .logo .site-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #00ffea;
+            text-shadow: 0 0 10px #00ffea;
+            text-decoration: none;
+        }
+        .container {
+            width: 90%;
+            max-width: 400px;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 255, 234, 0.3);
+            text-align: center;
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h1 {
+            font-size: 26px;
+            margin-bottom: 25px;
+            color: #00ffea;
+            text-shadow: 0 0 15px #00ffea;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            border: 2px solid #00ffea;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #00ffea;
+            font-size: 16px;
+            font-family: 'Orbitron', sans-serif;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #ff00ff;
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.5);
+        }
+        textarea {
+            resize: none;
+            height: 120px;
+        }
+        .btn {
+            background: linear-gradient(45deg, #ff00ff, #00ffea);
+            color: #121212;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+        }
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.8);
+        }
+        #response {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #00ffea;
+            text-shadow: 0 0 10px #00ffea;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="#" class="logo">
+            <img src="https://via.placeholder.com/40x40.png?text=V" alt="тут лого должно">
+            <span class="site-title">Teenova</span>
+        </a>
+    </nav>
+    <div class="container">
+        <h1>Вступить в клан Teenova</h1>
+        <input type="text" id="username" placeholder="Ваш никнейм" required>
+        <textarea id="message" placeholder="Почему вы хотите вступить в клан?" rows="4" required></textarea>
+        <button class="btn" onclick="submitRequest()">Отправить заявку</button>
+        <div id="response"></div>
+    </div>
+
+    <script>
+        const webApp = window.Telegram.WebApp;
+        webApp.ready();
+
+        async function submitRequest() {
+            const username = document.getElementById('username').value;
+            const message = document.getElementById('message').value;
+            const responseDiv = document.getElementById('response');
+
+            if (!username || !message) {
+                responseDiv.innerHTML = 'Пожалуйста, заполните все поля.';
+                return;
+            }
+
+            try {
+                const response = await fetch('/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        message: message,
+                        userId: webApp.initDataUnsafe.user ? webApp.initDataUnsafe.user.id : 'unknown',
+                        firstName: webApp.initDataUnsafe.user ? webApp.initDataUnsafe.user.first_name : 'unknown',
+                    }),
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    responseDiv.innerHTML = 'Заявка отправлена! Ожидайте ответа.';
+                } else {
+                    responseDiv.innerHTML = 'Ошибка при отправке заявки. Попробуйте снова.';
+                }
+            } catch (error) {
+                responseDiv.innerHTML = 'Ошибка: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
