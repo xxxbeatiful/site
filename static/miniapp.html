@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VibeSync Clan Join</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(135deg, #121212 0%, #1a1a1a 100%);
+            color: #00ffea;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        .navbar {
+            display: flex;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 20px rgba(0, 255, 234, 0.2);
+        }
+        .navbar .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .navbar .logo img {
+            height: 50px;
+            width: auto;
+            filter: drop-shadow(0 0 10px #00ffea);
+            transition: transform 0.3s ease;
+        }
+        .navbar .logo img:hover {
+            transform: scale(1.1);
+        }
+        .navbar .logo .site-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #00ffea;
+            text-shadow: 0 0 10px #00ffea;
+            text-decoration: none;
+        }
+        .clock {
+            font-size: 24px;
+            color: #ff00ff;
+            text-shadow: 0 0 15px #ff00ff;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.3);
+        }
+        .container {
+            width: 90%;
+            max-width: 400px;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 255, 234, 0.3);
+            text-align: center;
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h1 {
+            font-size: 26px;
+            margin-bottom: 25px;
+            color: #00ffea;
+            text-shadow: 0 0 15px #00ffea;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            border: 2px solid #00ffea;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #00ffea;
+            font-size: 16px;
+            font-family: 'Orbitron', sans-serif;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        input[type="file"] {
+            display: none; /* Скрываем стандартный input */
+        }
+        .file-upload {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 15px 0;
+        }
+        .file-upload-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #00ffea;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 10px 20px;
+            border: 2px solid #00ffea;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .file-upload-label:hover {
+            border-color: #ff00ff;
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.5);
+        }
+        .file-upload-label img {
+            width: 24px;
+            height: 24px;
+            filter: drop-shadow(0 0 10px #00ffea);
+        }
+        #file-preview {
+            max-width: 100%;
+            margin-top: 10px;
+            border-radius: 10px;
+            display: none;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #ff00ff;
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.5);
+        }
+        textarea {
+            resize: none;
+            height: 120px;
+        }
+        .btn {
+            background: linear-gradient(45deg, #ff00ff, #00ffea);
+            color: #121212;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+        }
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.8);
+        }
+        #response {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #00ffea;
+            text-shadow: 0 0 10px #00ffea;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="#" class="logo">
+            <img src="https://via.placeholder.com/40x40.png?text=V" alt="falverix logo">
+            <span class="site-title">VibeSync</span>
+        </a>
+    </nav>
+    <div class="clock" id="clock">00:00:00</div>
+    <div class="container">
+        <h1>Вступить в клан VibeSync</h1>
+        <input type="text" id="username" placeholder="Ваш никнейм" required>
+        <textarea id="message" placeholder="Почему вы хотите вступить в клан?" rows="4" required></textarea>
+        <div class="file-upload">
+            <label for="file" class="file-upload-label">
+                <img src="data:image/png;base64,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" alt="Clip Icon">
+                <span>Сколько у вас часов (прикрепите скриншот)</span>
+            </label>
+            <input type="file" id="file" accept="image/*" required>
+            <img id="file-preview" alt="Предпросмотр файла">
+        </div>
+        <button class="btn" onclick="submitRequest()">Отправить заявку</button>
+        <div id="response"></div>
+    </div>
+
+    <script>
+        const webApp = window.Telegram.WebApp;
+        webApp.ready();
+
+        // Функция для обновления часов
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+
+        // Обновляем часы каждую секунду
+        setInterval(updateClock, 1000);
+        updateClock(); // Вызываем сразу, чтобы часы отобразились без задержки
+
+        // Предпросмотр файла
+        document.getElementById('file').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const preview = document.getElementById('file-preview');
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = 'block';
+            }
+        });
+
+        async function submitRequest() {
+            const username = document.getElementById('username').value;
+            const message = document.getElementById('message').value;
+            const file = document.getElementById('file').files[0];
+            const responseDiv = document.getElementById('response');
+
+            if (!username || !message || !file) {
+                responseDiv.innerHTML = 'Пожалуйста, заполните все поля и прикрепите файл.';
+                return;
+            }
+
+            // Проверка размера файла (максимум 10 МБ)
+            if (file.size > 10 * 1024 * 1024) {
+                responseDiv.innerHTML = 'Файл слишком большой. Максимальный размер — 10 МБ.';
+                return;
+            }
+
+            // Создаем FormData для отправки файла
+            const formData = new FormData();
+            formData.append('username', username);
+            formData.append('message', message);
+            formData.append('file', file);
+            formData.append('userId', webApp.initDataUnsafe.user ? webApp.initDataUnsafe.user.id : 'unknown');
+            formData.append('firstName', webApp.initDataUnsafe.user ? webApp.initDataUnsafe.user.first_name : 'unknown');
+
+            try {
+                const response = await fetch('https://vibesync-server.herokuapp.com/submit', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    responseDiv.innerHTML = 'Заявка отправлена! Ожидайте ответа.';
+                } else {
+                    responseDiv.innerHTML = 'Ошибка при отправке заявки. Попробуйте снова.';
+                }
+            } catch (error) {
+                responseDiv.innerHTML = 'Ошибка: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
